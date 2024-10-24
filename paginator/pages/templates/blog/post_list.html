@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посты Блога</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            color: #007BFF;
+        }
+
+        p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .step-links a {
+            margin: 0 5px;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: #007BFF;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .step-links a:hover {
+            background: #0056b3;
+        }
+
+        .current {
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        form {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+    <script>
+        function toggleLanguage(lang) {
+            document.querySelectorAll('.lang').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.lang.${lang}`).classList.add('active');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const langParam = new URLSearchParams(window.location.search).get('lang');
+            if (langParam) {
+                toggleLanguage(langParam);
+            } else {
+                toggleLanguage('ru'); // По умолчанию на русском
+            }
+        });
+    </script>
+</head>
+<body>
+
+<div class="lang ru active">
+    <h1>Посты Блога</h1>
+
+    <ul>
+        {% for post in page_obj %}
+        <li>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.content }}</p>
+            <p><em>Создано: {{ post.created_at }}</em></p>
+        </li>
+        {% empty %}
+        <li>Нет доступных постов.</li>
+        {% endfor %}
+    </ul>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            {% if page_obj.number > 2 %}
+                <a href="?page=1&lang=ru&page_size={{ page_obj.paginator.per_page }}">&laquo;&laquo;</a>
+            {% endif %}
+            <a href="?page={{ page_obj.previous_page_number }}&lang=ru&page_size={{ page_obj.paginator.per_page }}">предыдущая</a>
+        {% endif %}
+
+        <span class="current">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&lang=ru&page_size={{ page_obj.paginator.per_page }}">следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&lang=ru&page_size={{ page_obj.paginator.per_page }}">&raquo;&raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+    <!-- Форма для изменения количества элементов на странице -->
+    <form method="GET">
+        <label for="page_size">Элементов на странице:</label>
+        <select name="page_size" id="page_size" onchange="this.form.submit()">
+            <option value="3" {% if page_obj.paginator.per_page == 3 %}selected{% endif %}>3</option>
+            <option value="5" {% if page_obj.paginator.per_page == 5 %}selected{% endif %}>5</option>
+            <option value="7" {% if page_obj.paginator.per_page == 7 %}selected{% endif %}>7</option>
+        </select>
+        <input type="hidden" name="lang" value="ru">
+        <input type="hidden" name="page" value="{{ page_obj.number }}">
+    </form>
+</div>
+
+</body>
+</html>
